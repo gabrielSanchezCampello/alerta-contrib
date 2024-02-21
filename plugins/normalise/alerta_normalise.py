@@ -15,8 +15,8 @@ class NormaliseAlert(PluginBase):
         alert.text = '{}: {}'.format(alert.severity.upper(), alert.text)
 
         # supply different default values if missing
-        if not alert.group or alert.group == 'Misc':
-            alert.group = 'Unknown'
+        if not alert.externalUrl or alert.externalUrl == '':
+            alert.externalUrl = 'Unknown'
         if not alert.value or alert.value == 'n/a':
             alert.value = '--'
 
