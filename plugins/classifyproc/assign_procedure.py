@@ -9,9 +9,13 @@ class AssignProcedure(PluginBase):
 
     def pre_receive(self, alert):
 
-        LOG.info('Assign procedure...')
+        LOG.info('Se asigna procedimiento generico...')
+        alert.attributes["Procedimiento"] = "P-GENERICO"
+        alert.attributes["Responsable"] = "RESPONSABLE GENERICO"
+
         rules_path = "/app/proc_rules.txt"
-        max_n_matches=0
+        max_n_matches = 0
+
         with open(rules_path, "r") as f:
             for rule in f.readlines():
                 LOG.debug(f"RULE:{rule}")
@@ -71,7 +75,10 @@ class AssignProcedure(PluginBase):
                     alert.attributes["Responsable"] = manager
                     max_n_matches = n_matches
                     rule_aplied = rule
-        LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
+
+        if max_n_matches != 0:
+            LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
+
         return alert
 
     def post_receive(self, alert):
