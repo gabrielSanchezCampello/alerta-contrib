@@ -1,5 +1,5 @@
 import logging
-
+import re
 from alerta.plugins import PluginBase
 
 LOG = logging.getLogger('alerta.plugins.normalise')
@@ -26,27 +26,27 @@ class AssignProcedure(PluginBase):
                 instruction = data_rule[7]
                 LOG.info(f"Fila: {category}, {app}, {object_alert}, {node}, {ip}, {title}, {manager}, {instruction}")
 
-                if category and alert.group != category:
+                if category and not re.search(category, alert.group):
                     LOG.info(f"Falla en category. {category} == {alert.group}")
                     continue
 
-                if app and "App" in alert.attributes.keys() and alert.attributes["App"] != app:
+                if app and "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
                     LOG.info(f"Falla en app. {app} == {alert.attributes['App']}")
                     continue
 
-                if object_alert and alert.service != object_alert:
+                if object_alert and not re.search(object_alert, alert.service):
                     LOG.info(f"Falla en object. {object_alert} == {alert.service}")
                     continue
 
-                if node and alert.resource != node:
+                if node and not re.search(node, alert.resource):
                     LOG.info(f"Falla en node. {node} == {alert.resource}")
                     continue
 
-                if ip and "IP" in alert.attributes.keys() and alert.attributes["IP"]  != ip:
+                if ip and "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
                     LOG.info(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
                     continue
 
-                if title and alert.event != title:
+                if title and not re.search(title, alert.event):
                     LOG.info(f"Falla en title. {title} == {alert.event}")
                     continue
 
