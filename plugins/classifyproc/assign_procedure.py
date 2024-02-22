@@ -14,12 +14,13 @@ class AssignProcedure(PluginBase):
         max_n_matches=0
         with open(rules_path, "r") as f:
             for rule in f.readlines():
-                LOG.info(f"RULE:{rule}, {rule.split(';')}")
-                if not rule:
-                    LOG.info("Linea vacia")
-                    continue
+                LOG.info(f"RULE:{rule}}")
+
 
                 data_rule = rule.split(";")
+                if len(data_rule) != 8:
+                    LOG.warning("Regla incompleta")
+                    continue
                 category = data_rule[0]
                 app = data_rule[1]
                 object_alert = data_rule[2]
