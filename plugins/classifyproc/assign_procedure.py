@@ -28,30 +28,31 @@ class AssignProcedure(PluginBase):
 
                 if category and alert.group != category:
                     LOG.info(f"Falla en category. {category} == {alert.group}")
-                    break
+                    continue
 
                 if app and "App" in alert.attributes.keys() and alert.attributes["App"] != app:
                     LOG.info(f"Falla en app. {app} == {alert.attributes['App']}")
-                    break
+                    continue
 
                 if object_alert and alert.service != object_alert:
                     LOG.info(f"Falla en object. {object_alert} == {alert.service}")
-                    break
+                    continue
 
                 if node and alert.resource != node:
                     LOG.info(f"Falla en node. {node} == {alert.resource}")
-                    break
+                    continue
 
                 if ip and "IP" in alert.attributes.keys() and alert.attributes["IP"]  != ip:
                     LOG.info(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
-                    break
+                    continue
 
                 if title and alert.event != title:
                     LOG.info(f"Falla en title. {title} == {alert.event}")
-                    break
+                    continue
 
                 alert.attributes["Procedimiento"] = instruction
                 alert.attributes["Responsable"] = manager
+                break
 
         return alert
 
