@@ -16,16 +16,28 @@ class AssignProcedure(PluginBase):
             LOG.info("Se lee el fichero")
             for rule in f.readlines():
                 data_rule = rule.split(";")
-                error = data_rule[0]
-                proc = data_rule[1]
-                extra = data_rule[2]
-                LOG.info(f"Se buscan coincidencias... {event}=={error}")
-                if event == error:
-                    LOG.info("Coincide")
-                    alert.attributes["Procedimiento"] = proc
+                category = data_rule[0]
+                app = data_rule[1]
+                object_alert = data_rule[2]
+                node = data_rule[3]
+                ip = data_rule[4]
+                title = data_rule[5]
+                manager = data_rule[6]
+                instruction = data_rule[7]
+                if alert.group and alert.group != category:
                     break
-                if extra:
-                    alert.extra = extra
+                if alert.app and alert.app != app:
+                    break
+                if alert.service and alert.service != object_alert:
+                    break
+                if alert.resource and alert.resource != node:
+                    break
+                if alert.ip and alert.ip != ip:
+                    break
+                if alert.event and alert.event != title:
+                    break
+                alert.attributes["Procedimiento"] = instruction
+                alert.attributes["Responsable"] = manager
 
         return alert
 
