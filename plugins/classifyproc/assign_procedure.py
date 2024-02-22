@@ -14,8 +14,12 @@ class AssignProcedure(PluginBase):
         max_n_matches=0
         with open(rules_path, "r") as f:
             for rule in f.readlines():
+                LOG.info(rule)
+
                 if not rule:
+                    LOG.info("Linea vacia")
                     continue
+
                 data_rule = rule.split(";")
                 category = data_rule[0]
                 app = data_rule[1]
@@ -25,9 +29,9 @@ class AssignProcedure(PluginBase):
                 title = data_rule[5]
                 manager = data_rule[6]
                 instruction = data_rule[7]
-                LOG.debug(f"Fila: {rule}")
-                
+
                 n_matches = 0
+
                 if category:
                     n_matches = n_matches + 1
                     if not re.search(category, alert.group):
