@@ -10,7 +10,7 @@ class AssignProcedure(PluginBase):
     def pre_receive(self, alert):
 
         LOG.info('Assign procedure...')
-        rules_path = "app/proc_rules.txt"
+        rules_path = "/app/proc_rules.txt"
         event = alert.event
         with open(rules_path, "r") as f:
             for rule in f.readlines():
