@@ -10,10 +10,20 @@ class AssignProcedure(PluginBase):
     def pre_receive(self, alert):
 
         LOG.info('Assign procedure...')
+        rules_path = "app/proc_rules.txt"
+        event = alert.event
+        with open(rules_path, "r") as f:
+            for rule in f.readlines():
+                data_rule = rule.split(";")
+                error = data_rule[0]
+                proc = data_rule[1]
+                extra = data_rule[2]
 
-        # supply different default values if missing
-        if not alert.value or alert.value == '':
-            alert.value = 'AGP-00001'
+                if event == error:
+                    alert.value = proc
+                    break
+                if extra:
+                    alert.extra = extra
 
         return alert
 
