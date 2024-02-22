@@ -1,14 +1,11 @@
-Normalise Plugin (Example)
+Assign procedures to alerts
 ==========================
 
-This is an example plugin that demonstrates how plugins can be used
-to "normalise" alerts from different monitoring sources to ensure
-they conform to a standard before being saved to the database.
+Actions:
 
-Normalise actions:
-
-  * two alert attributes are checked for values and if no value is set they are assigned default values.
-  * alert text is modified to prepend the severity level in capitals.
+  * Read a file with several rules and their associated procedures.
+  * Find the most restrictive rule that matches the alert.
+  * Assign the procedure to the rule
 
 This repo should be forked or copied and the python plugin modified to suit
 the specific Alerta environment.
@@ -24,7 +21,8 @@ Clone the GitHub repo and run:
 
 Or, to install remotely from GitHub run:
 
-    $ pip install git+https://github.com/alerta/alerta-contrib.git#subdirectory=plugins/normalise
+    $ pip install git+https://github.com/gabrielSanchezCampello/alerta-contrib.git#subdirectory=plugins/classifyproc
+
 
 Note: If Alerta is installed in a python virtual environment then plugins
 need to be installed into the same environment for Alerta to dynamically
@@ -33,14 +31,14 @@ discover them.
 Configuration
 -------------
 
-Add `normalise` to the list of enabled `PLUGINS` in `alertad.conf` server
+Add `classifyproc` to the list of enabled `PLUGINS` in `alertad.conf` server
 configuration file and set plugin-specific variables either in the
 server configuration file or as environment variables.
 
 **Example**
 
 ```python
-PLUGINS = ['reject','normalise']
+PLUGINS = ['reject','classifyproc']
 ```
 
 Troubleshooting
