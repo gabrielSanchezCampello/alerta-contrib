@@ -2,7 +2,7 @@ import logging
 import re
 from alerta.plugins import PluginBase
 
-LOG = logging.getLogger('alerta.plugins.normalise')
+LOG = logging.getLogger('alerta.plugins.assign_proc')
 
 
 class AssignProcedure(PluginBase):
