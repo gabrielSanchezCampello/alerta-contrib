@@ -11,7 +11,7 @@ class AssignProcedure(PluginBase):
 
         LOG.info('Assign procedure...')
         rules_path = "/app/proc_rules.txt"
-        event = alert.event
+        max_n_matches=0
         with open(rules_path, "r") as f:
             LOG.info("Se lee el fichero")
             for rule in f.readlines():
@@ -25,35 +25,48 @@ class AssignProcedure(PluginBase):
                 manager = data_rule[6]
                 instruction = data_rule[7]
                 LOG.info(f"Fila: {category}, {app}, {object_alert}, {node}, {ip}, {title}, {manager}, {instruction}")
+                
+                n_matches = 0
+                if category:
+                    n_matches = n_matches + 1
+                    if not re.search(category, alert.group):
+                        LOG.info(f"Falla en category. {category} == {alert.group}")
+                        continue
 
-                if category and not re.search(category, alert.group):
-                    LOG.info(f"Falla en category. {category} == {alert.group}")
-                    continue
+                if app:
+                    n_matches = n_matches + 1
+                    if "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
+                        LOG.info(f"Falla en app. {app} == {alert.attributes['App']}")
+                        continue
 
-                if app and "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
-                    LOG.info(f"Falla en app. {app} == {alert.attributes['App']}")
-                    continue
+                if object_alert:
+                    n_matches = n_matches + 1
+                    if not re.search(object_alert, alert.service):
+                        LOG.info(f"Falla en object. {object_alert} == {alert.service}")
+                        continue
 
-                if object_alert and not re.search(object_alert, alert.service):
-                    LOG.info(f"Falla en object. {object_alert} == {alert.service}")
-                    continue
+                if node:
+                    n_matches = n_matches + 1
+                    if not re.search(node, alert.resource):
+                        LOG.info(f"Falla en node. {node} == {alert.resource}")
+                        continue
 
-                if node and not re.search(node, alert.resource):
-                    LOG.info(f"Falla en node. {node} == {alert.resource}")
-                    continue
+                if ip:
+                    n_matches = n_matches + 1
+                    if "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
+                        LOG.info(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
+                        continue
 
-                if ip and "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
-                    LOG.info(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
-                    continue
+                if title:
+                    n_matches = n_matches + 1
+                    if not re.search(title, alert.event):
+                        LOG.info(f"Falla en title. {title} == {alert.event}")
+                        continue
 
-                if title and not re.search(title, alert.event):
-                    LOG.info(f"Falla en title. {title} == {alert.event}")
-                    continue
-
-                alert.attributes["Procedimiento"] = instruction
-                alert.attributes["Responsable"] = manager
-                break
-
+                if n_matches > max_n_matches:
+                    alert.attributes["Procedimiento"] = instruction
+                    alert.attributes["Responsable"] = manager
+                    max_n_matches = n_matches
         return alert
 
     def post_receive(self, alert):
