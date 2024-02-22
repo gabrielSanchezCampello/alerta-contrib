@@ -24,17 +24,17 @@ class AssignProcedure(PluginBase):
                 title = data_rule[5]
                 manager = data_rule[6]
                 instruction = data_rule[7]
-                if alert.group and alert.group != category:
+                if category and alert.group != category:
                     break
-                if alert.app and alert.app != app:
+                if app and alert.app != app:
                     break
-                if alert.service and alert.service != object_alert:
+                if object_alert and alert.service != object_alert:
                     break
-                if alert.resource and alert.resource != node:
+                if node and alert.resource != node:
                     break
-                if alert.ip and alert.ip != ip:
+                if ip and alert.ip != ip:
                     break
-                if alert.event and alert.event != title:
+                if title and alert.event != title:
                     break
                 alert.attributes["Procedimiento"] = instruction
                 alert.attributes["Responsable"] = manager
