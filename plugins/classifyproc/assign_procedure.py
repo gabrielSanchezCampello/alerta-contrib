@@ -24,18 +24,32 @@ class AssignProcedure(PluginBase):
                 title = data_rule[5]
                 manager = data_rule[6]
                 instruction = data_rule[7]
+                LOG.info(f"Fila: {category}, {app}, {object_alert}, {node}, {ip}, {title}, {manager}, {instruction}")
+
                 if category and alert.group != category:
+                    LOG.info(f"Falla en category. {category} == {alert.group}")
                     break
-                if app and alert.app != app:
+
+                if app and "App" in alert.attributes.keys() and alert.attributes["App"] != app:
+                    LOG.info(f"Falla en app. {app} == {alert.attributes['App']}")
                     break
+
                 if object_alert and alert.service != object_alert:
+                    LOG.info(f"Falla en object. {object_alert} == {alert.service}")
                     break
+
                 if node and alert.resource != node:
+                    LOG.info(f"Falla en node. {node} == {alert.resource}")
                     break
-                if ip and alert.ip != ip:
+
+                if ip and "IP" in alert.attributes.keys() and alert.attributes["IP"]  != ip:
+                    LOG.info(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
                     break
+
                 if title and alert.event != title:
+                    LOG.info(f"Falla en title. {title} == {alert.event}")
                     break
+
                 alert.attributes["Procedimiento"] = instruction
                 alert.attributes["Responsable"] = manager
 
