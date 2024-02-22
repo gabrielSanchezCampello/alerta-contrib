@@ -14,7 +14,7 @@ class AssignProcedure(PluginBase):
         max_n_matches=0
         with open(rules_path, "r") as f:
             for rule in f.readlines():
-                LOG.info(f"RULE:{rule}}")
+                LOG.info(f"RULE:{rule}")
 
 
                 data_rule = rule.split(";")
