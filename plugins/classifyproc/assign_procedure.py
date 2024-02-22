@@ -22,7 +22,7 @@ class AssignProcedure(PluginBase):
                 LOG.info(f"Se buscan coincidencias... {event}=={error}")
                 if event == error:
                     LOG.info("Coincide")
-                    alert.value = proc
+                    alert.attributes["Procedimiento"] = proc
                     break
                 if extra:
                     alert.extra = extra
