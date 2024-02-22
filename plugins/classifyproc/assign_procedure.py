@@ -14,8 +14,7 @@ class AssignProcedure(PluginBase):
         max_n_matches=0
         with open(rules_path, "r") as f:
             for rule in f.readlines():
-                LOG.info(rule)
-
+                LOG.info(f"RULE:{rule}, {rule.split(';')}")
                 if not rule:
                     LOG.info("Linea vacia")
                     continue
