@@ -17,7 +17,7 @@ setup(
     zip_safe=True,
     entry_points={
         'alerta.plugins': [
-            'classifyproc = alert2teams:Alert2Teams'
+            'alert2teams = alert2teams:Alert2Teams'
         ]
     }
 )
