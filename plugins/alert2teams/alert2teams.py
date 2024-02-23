@@ -54,7 +54,7 @@ class Alert2Teams(PluginBase):
 
     def pre_receive(self, alert):
 
-        return
+        return alert
 
     def post_receive(self, alert):
         LOG.info('Se asigna procedimiento generico...')
