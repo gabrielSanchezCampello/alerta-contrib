@@ -123,6 +123,7 @@ class Alert2Teams(PluginBase):
 
                 LOG.info(f"n_matches: {n_matches}, max_n_matches: {max_n_matches}")
                 if n_matches > max_n_matches:
+                    max_n_matches = n_matches
                     # Values of teams
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
