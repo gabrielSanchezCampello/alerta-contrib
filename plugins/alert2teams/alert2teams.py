@@ -80,43 +80,48 @@ class Alert2Teams(PluginBase):
                 severity = data_rule[6]
 
                 n_matches = 0
-
+                LOG.info(f"Se comprueba category")
                 if category:
                     n_matches = n_matches + 1
                     if not re.search(category, alert.group):
                         LOG.debug(f"Falla en category. {category} == {alert.group}")
                         continue
-
+                LOG.info(f"Se comprueba app")
                 if app:
                     n_matches = n_matches + 1
                     if "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
                         LOG.debug(f"Falla en app. {app} == {alert.attributes['App']}")
                         continue
 
+                LOG.info(f"Se comprueba object")
                 if object_alert:
                     n_matches = n_matches + 1
                     if not re.search(object_alert, alert.service):
                         LOG.debug(f"Falla en object. {object_alert} == {alert.service}")
                         continue
 
+                LOG.info(f"Se comprueba node")
                 if node:
                     n_matches = n_matches + 1
                     if not re.search(node, alert.resource):
                         LOG.debug(f"Falla en node. {node} == {alert.resource}")
                         continue
 
+                LOG.info(f"Se comprueba ip")
                 if ip:
                     n_matches = n_matches + 1
                     if "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
                         LOG.debug(f"Falla en IP. {ip} == {alert.attributes['IP']}")
                         continue
 
+                LOG.info(f"Se comprueba title")
                 if title:
                     n_matches = n_matches + 1
                     if not re.search(title, alert.event):
                         LOG.debug(f"Falla en title. {title} == {alert.event}")
                         continue
 
+                LOG.info(f"n_matches: {n_matches}, max_n_matches: {max_n_matches}")
                 if n_matches > max_n_matches:
                     # Values of teams
                     teams_tile = data_rule[7]
