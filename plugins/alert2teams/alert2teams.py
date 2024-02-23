@@ -3,7 +3,7 @@ import re
 import pymsteams
 from alerta.plugins import PluginBase
 
-LOG = logging.getLogger('alerta.plugins.assign_proc')
+LOG = logging.getLogger('alerta.plugins.alerta2teams')
 
 
 class Alert2Teams(PluginBase):
