@@ -57,7 +57,7 @@ class Alert2Teams(PluginBase):
         return alert
 
     def post_receive(self, alert):
-        LOG.info('Se asigna procedimiento generico...')
+        LOG.info('Se busca la regla a aplicar...')
 
         rules_path = "/app/proc_rules_teams.txt"
         max_n_matches = 0
@@ -131,8 +131,11 @@ class Alert2Teams(PluginBase):
             body = f"RESUMEN@:@ {teams_summary}"
             body = body + f"SEVERITY@:@ {teams_severity}"
             body = body + f"TYPE@:@ {teams_type}"
+            LOG.info(f"Se manda teams con Titulo {teams_tile} || Body: {body} al webhook: {teams_webhook}")
             self.send_message(teams_tile, body, severity, teams_webhook)
-
+            alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
+        else:
+            LOG.info("No se envía teams ya que no encaja en ninguna regla.")
         return alert
 
     def status_change(self, alert, status, text):
