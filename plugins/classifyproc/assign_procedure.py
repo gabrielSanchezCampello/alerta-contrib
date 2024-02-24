@@ -1,19 +1,21 @@
 import logging
 import re
 from alerta.plugins import PluginBase
+from alerta.plugins import app
 
 LOG = logging.getLogger('alerta.plugins.assign_proc')
 
+plugin_conf = app.config.get('PLUGIN_CONF')
 
 class AssignProcedure(PluginBase):
 
     def pre_receive(self, alert):
 
         LOG.info('Se asigna procedimiento generico...')
-        alert.attributes["Procedimiento"] = "P-GENERICO"
-        alert.attributes["Responsable"] = "RESPONSABLE GENERICO"
+        alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
+        alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
-        rules_path = "/app/proc_rules.txt"
+        rules_path = plugin_conf["classifyproc"]["rules_file"]
         max_n_matches = 0
 
         with open(rules_path, "r") as f:
