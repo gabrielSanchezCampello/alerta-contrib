@@ -72,75 +72,90 @@ class Alert2Teams(PluginBase):
                     continue
 
                 # Values of rule
-                category = data_rule[0]
-                app = data_rule[1]
-                object_alert = data_rule[2]
-                node = data_rule[3]
-                ip = data_rule[4]
-                title = data_rule[5]
-                severity = data_rule[6]
+                rule_category = data_rule[0]
+                rule_app = data_rule[1]
+                rule_object = data_rule[2]
+                rule_node = data_rule[3]
+                rule_ip = data_rule[4]
+                rule_title = data_rule[5]
+                rule_severity = data_rule[6]
 
                 n_matches = 0
                 LOG.info(f"Se comprueba category")
-                if category:
+                if rule_category:
                     n_matches = n_matches + 1
-                    if not re.search(category, alert.group):
-                        LOG.debug(f"Falla en category. {category} == {alert.group}")
+                    if not re.search(rule_category, alert.group):
+                        LOG.debug(f"Falla en category. {rule_category} == {alert.group}")
                         continue
+
                 LOG.info(f"Se comprueba app")
-                if app:
+                if rule_app:
                     n_matches = n_matches + 1
-                    if "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
-                        LOG.debug(f"Falla en app. {app} == {alert.attributes['App']}")
+                    if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
+                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
                         continue
 
                 LOG.info(f"Se comprueba object")
-                if object_alert:
+                if rule_object:
                     n_matches = n_matches + 1
-                    if not re.search(object_alert, alert.service):
-                        LOG.debug(f"Falla en object. {object_alert} == {alert.service}")
+                    if not re.search(rule_object, alert.service):
+                        LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
                         continue
 
                 LOG.info(f"Se comprueba node")
-                if node:
+                if rule_node:
                     n_matches = n_matches + 1
-                    if not re.search(node, alert.resource):
-                        LOG.debug(f"Falla en node. {node} == {alert.resource}")
+                    if not re.search(rule_node, alert.resource):
+                        LOG.debug(f"Falla en node. {rule_node} == {alert.resource}")
                         continue
 
                 LOG.info(f"Se comprueba ip")
-                if ip:
+                if rule_ip:
                     n_matches = n_matches + 1
-                    if "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
-                        LOG.debug(f"Falla en IP. {ip} == {alert.attributes['IP']}")
+                    if "IP" in alert.attributes.keys() and not re.search(rule_ip, alert.attributes["IP"]):
+                        LOG.debug(f"Falla en IP. {rule_ip} == {alert.attributes['IP']}")
                         continue
 
                 LOG.info(f"Se comprueba title")
-                if title:
+                if rule_title:
                     n_matches = n_matches + 1
-                    if not re.search(title, alert.event):
-                        LOG.debug(f"Falla en title. {title} == {alert.event}")
+                    if not re.search(rule_title, alert.event):
+                        LOG.debug(f"Falla en title. {rule_title} == {alert.event}")
+                        continue
+
+                LOG.info(f"Se comprueba severity")
+                if rule_severity:
+                    n_matches = n_matches + 1
+                    if not re.search(rule_severity, alert.severity):
+                        LOG.debug(f"Falla en severity. {rule_severity} == {alert.severity}")
                         continue
 
                 LOG.info(f"n_matches: {n_matches}, max_n_matches: {max_n_matches}")
                 if n_matches > max_n_matches:
                     max_n_matches = n_matches
                     # Values of teams
+                    alert_category = alert.group
+                    alert_severity = alert.severity
+                    try:
+                        alert_app = alert.attributes["App"]
+                    except Exception:
+                        alert_app = ""
+                    alert_object = alert.service
+
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
                     teams_webhook = data_rule[9].rstrip()
-                    teams_severity = alert.severity
                     rule_aplied = rule
 
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
             body = f"RESUMEN@:@ {teams_summary} \n"
-            body = body + f"CATEGORIA@:@ {category} \n"
-            body = body + f"APP@:@ {app} \n"
-            body = body + f"OBJETO@:@ {object_alert} \n"
-            body = body + f"SEVERIDAD@:@ {teams_severity} \n"
+            body = body + f"CATEGORIA@:@ {alert_category} \n"
+            body = body + f"APP@:@ {alert_app} \n"
+            body = body + f"OBJETO@:@ {alert_object} \n"
+            body = body + f"SEVERIDAD@:@ {alert_severity} \n"
             LOG.info(f"Se manda teams con: webhook: {teams_webhook} || Titulo {teams_tile} || Body: {body} ")
-            self.send_message(teams_tile, body, severity, teams_webhook)
+            self.send_message(teams_tile, body, alert_severity, teams_webhook)
             alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
         else:
             LOG.info("No se envía teams ya que no encaja en ninguna regla.")
