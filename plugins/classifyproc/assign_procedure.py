@@ -30,9 +30,10 @@ class AssignProcedure(PluginBase):
 
             if key == "type":
                 alert.attributes["TipoAlerta"] = value
+
             if key == "namespace":
                 LOG.debug(f"Se asigna la App {value}")
-                alert.attributes["Aplicacion"] = value
+                alert.attributes["App"] = value
 
             if key == "object":
                 LOG.debug(f"Se asigna el objeto {value}")
@@ -88,8 +89,8 @@ class AssignProcedure(PluginBase):
 
                 if rule_app:
                     n_matches = n_matches + 1
-                    if "Aplicacion" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["Aplicacion"]):
-                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['Aplicacion']}")
+                    if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
+                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
                         continue
 
                 if rule_object:
