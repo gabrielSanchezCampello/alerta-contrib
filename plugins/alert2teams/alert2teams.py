@@ -60,6 +60,14 @@ class Alert2Teams(PluginBase):
     def post_receive(self, alert):
         if alert.repeat:
             return alert
+        LOG.debug(f"Trend Indication: {alert.trendIndication}")
+        if alert.trendIndication and "TEAMS_WEBHOOK" in alert.attributes.keys():
+            LOG.debug(f"Ha cambiado la severidad")
+            webhook = alert.attributes["TEAMS_WEBHOOK"]
+            title = alert.attributes["TEAMS_TITLE"]
+            LOG.debug(f"title {title}, severity {alert.severity}")
+            self.send_message(title, "", alert.severity, webhook)
+            return alert
 
         LOG.info('Se busca la regla a aplicar...')
 
@@ -72,6 +80,7 @@ class Alert2Teams(PluginBase):
                 data_rule = rule.split(";")
                 if len(data_rule) != 10:
                     LOG.warning("Regla incompleta")
+
                     continue
 
                 # Values of rule
@@ -167,12 +176,12 @@ class Alert2Teams(PluginBase):
         return alert
 
     def status_change(self, alert, status, text):
-        LOG.debug(f"Ha cambiado el estado de la alerta {status}, {text}")
-        if "TEAMS_WEBHOOK" in alert.attributes.keys():
-            LOG.debug("Si que se ha enviado teams.")
-            webhook = alert.attributes["TEAMS_WEBHOOK"]
-            title = alert.attributes["TEAMS_TITLE"]
-            LOG.debug(f"title {title}, severity {status}")
-            self.send_message(title, "", status, webhook)
+        # LOG.debug(f"Ha cambiado el estado de la alerta {status}, {text}")
+        # if "TEAMS_WEBHOOK" in alert.attributes.keys():
+        #     LOG.debug("Si que se ha enviado teams.")
+        #     webhook = alert.attributes["TEAMS_WEBHOOK"]
+        #     title = alert.attributes["TEAMS_TITLE"]
+        #     LOG.debug(f"title {title}, severity {status}")
+        #     self.send_message(title, "", status, webhook)
 
         return alert
