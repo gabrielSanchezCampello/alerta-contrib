@@ -12,7 +12,7 @@ class AssignProcedure(PluginBase):
     def normalise_alert_tienda(self, alert):
         if "cloud" in alert.attributes.keys():
             LOG.debug(f"Se asigna la category {alert.attributes['cloud']}")
-            alert.category = alert.attributes["cloud"]
+            alert.group = alert.attributes["cloud"]
 
         if "namespace" in alert.attributes.keys():
             LOG.debug(f"Se asigna la App {alert.attributes['namespace']}")
