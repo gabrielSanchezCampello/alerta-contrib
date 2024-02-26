@@ -67,7 +67,7 @@ class Alert2Teams(PluginBase):
             for rule in f.readlines():
                 LOG.debug(f"RULE:{rule}")
                 data_rule = rule.split(";")
-                if len(data_rule) != 11:
+                if len(data_rule) != 10:
                     LOG.warning("Regla incompleta")
                     continue
 
@@ -128,8 +128,8 @@ class Alert2Teams(PluginBase):
                     # Values of teams
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
-                    teams_webhook = data_rule[10].rstrip()
-                    teams_severity = severity
+                    teams_webhook = data_rule[9].rstrip()
+                    teams_severity = alert.severity
                     rule_aplied = rule
 
         if max_n_matches != 0:
