@@ -164,9 +164,12 @@ class Alert2Teams(PluginBase):
         return alert
 
     def status_change(self, alert, status, text):
-        if "TEAMS" in alert.attributes.keys():
+        LOG.debug(f"Ha cambiado el estado de la alerta {status}, {text}")
+        if "TEAMS_WEBHOOK" in alert.attributes.keys():
+            LOG.debug("Si que se ha enviado teams.")
             webhook = alert.attributes["TEAMS_WEBHOOK"]
             title = alert.attributes["TEAMS_TITLE"]
-            self.send_message(title, "", status, webhook)
+            LOG.debug(f"title {title}, severity {alert.severity}")
+            self.send_message(title, "", alert.severity, webhook)
 
         return alert
