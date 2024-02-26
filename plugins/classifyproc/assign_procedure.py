@@ -24,8 +24,8 @@ class AssignProcedure(PluginBase):
     def pre_receive(self, alert):
 
         LOG.info('Se asigna procedimiento generico...')
-        if "source" in alert.tags.keys():
-            if alert.tags["source"] == "tienda":
+        if "source" in alert.attributes.keys():
+            if alert.attributes["source"] == "tienda":
                 self.normalise_alert_tienda(alert)
 
         alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
