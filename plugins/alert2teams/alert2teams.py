@@ -60,15 +60,31 @@ class Alert2Teams(PluginBase):
     def post_receive(self, alert):
         if alert.repeat:
             return alert
-        LOG.debug(f"Trend Indication: {alert.trend_indication}")
-        if alert.trend_indication and "TEAMS_WEBHOOK" in alert.attributes.keys():
+
+        #INFO ALERTA
+        alert_node = alert.resource
+        alert_category = alert.group
+        alert_severity = alert.severity
+        try:
+            alert_app = alert.attributes["App"]
+        except Exception:
+            alert_app = ""
+        alert_object = alert.service
+
+        #Notificacion en caso de cambio de severidad
+        if alert.trend_indication and alert.trend_indication != "noChange" and "TEAMS_WEBHOOK" in alert.attributes.keys():
             LOG.debug(f"Ha cambiado la severidad")
             webhook = alert.attributes["TEAMS_WEBHOOK"]
             title = alert.attributes["TEAMS_TITLE"]
-            LOG.debug(f"title {title}, severity {alert.severity}")
-            self.send_message(title, "", alert.severity, webhook)
+            body = f"CATEGORIA@:@ {alert_category} \n"
+            body = body + f"NODO@:@ {alert_node} \n"
+            body = body + f"APP@:@ {alert_app} \n"
+            body = body + f"SEVERIDAD@:@ {alert_severity} \n"
+            body = body + f"OBJETO@:@ {alert_object} \n"
+            self.send_message(title, body, alert.severity, webhook)
             return alert
 
+        #Notificacion inicial
         LOG.info('Se busca la regla a aplicar...')
 
         rules_path = plugin_conf["alert2teams"]["rules_file"]
@@ -145,15 +161,7 @@ class Alert2Teams(PluginBase):
                 LOG.info(f"n_matches: {n_matches}, max_n_matches: {max_n_matches}")
                 if n_matches > max_n_matches:
                     max_n_matches = n_matches
-                    # Values of teams
-                    alert_category = alert.group
-                    alert_severity = alert.severity
-                    try:
-                        alert_app = alert.attributes["App"]
-                    except Exception:
-                        alert_app = ""
-                    alert_object = alert.service
-
+                    # Values to teams
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
                     teams_webhook = data_rule[9].rstrip()
@@ -161,17 +169,18 @@ class Alert2Teams(PluginBase):
 
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
-            body = f"RESUMEN@:@ {teams_summary} \n"
-            body = body + f"CATEGORIA@:@ {alert_category} \n"
+
+            body = f"CATEGORIA@:@ {alert_category} \n"
+            body = body + f"NODO@:@ {alert_node} \n"
             body = body + f"APP@:@ {alert_app} \n"
-            body = body + f"OBJETO@:@ {alert_object} \n"
             body = body + f"SEVERIDAD@:@ {alert_severity} \n"
+            body = body + f"OBJETO@:@ {alert_object} \n"
             LOG.info(f"Se manda teams con: webhook: {teams_webhook} || Titulo {teams_tile} || Body: {body} ")
             self.send_message(teams_tile, body, alert_severity, teams_webhook)
             alert.attributes["TEAMS_WEBHOOK"] = f"{teams_webhook}"
             alert.attributes["TEAMS_TITLE"] = f"{teams_tile}"
-
         else:
+            alert.attributes["ENVIA_TEAMS"] = f"NO"
             LOG.info("No se envía teams ya que no encaja en ninguna regla.")
         return alert
 
