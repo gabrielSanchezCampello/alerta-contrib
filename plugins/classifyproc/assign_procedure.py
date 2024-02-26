@@ -18,7 +18,7 @@ class AssignProcedure(PluginBase):
             key = info.split("=")[0]
             value = info.split("=")[1]
 
-            if key == "cloud":
+            if key == "cloud" and value:
                 LOG.debug(f"Se asigna la category {value}")
                 alert.group = value
 
@@ -30,13 +30,14 @@ class AssignProcedure(PluginBase):
                 LOG.debug(f"Se asigna el objeto {value}")
                 alert.service = value
 
-            if key == "host_name":
+            if key == "host_name" and value:
                 LOG.debug(f"Se asigna el nodo {value}")
                 alert.resource = value
 
     def pre_receive(self, alert):
         #Se normalizan las alertas recibidas de tiendas
         if "source=tienda" in alert.tags:
+            LOG.debug("Se normalizan los datos recibidos de tiendas.")
             self.normalise_alert_tienda(alert)
 
         #Si la alerta es warning se considera major
