@@ -32,6 +32,9 @@ class AssignProcedure(PluginBase):
             if alert.attributes["source"] == "tienda":
                 self.normalise_alert_tienda(alert)
 
+        if alert.repeat:
+            return alert
+
         alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
         alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 

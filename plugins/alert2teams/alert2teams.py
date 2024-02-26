@@ -58,6 +58,9 @@ class Alert2Teams(PluginBase):
         return alert
 
     def post_receive(self, alert):
+        if alert.repeat:
+            return alert
+
         LOG.info('Se busca la regla a aplicar...')
 
         rules_path = plugin_conf["alert2teams"]["rules_file"]
