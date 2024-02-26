@@ -10,28 +10,40 @@ plugin_conf = app.config.get('PLUGIN_CONF')
 class AssignProcedure(PluginBase):
 
     def normalise_alert_tienda(self, alert):
-        if "cloud" in alert.attributes.keys():
-            LOG.debug(f"Se asigna la category {alert.attributes['cloud']}")
-            alert.group = alert.attributes["cloud"]
+        for info in alert.tags:
 
-        if "namespace" in alert.attributes.keys():
-            LOG.debug(f"Se asigna la App {alert.attributes['namespace']}")
-            alert.attributes["App"] = alert.attributes["namespace"]
+            if "=" not in info:
+                continue
 
-        if "job" in alert.attributes.keys():
-            LOG.debug(f"Se asigna el objeto {alert.attributes['job']}")
-            alert.service = alert.attributes["job"]
+            key = info.split("=")[0]
+            value = info.split("=")[1]
 
-        LOG.debug(f"Se asigna el nodo tienda")
-        alert.resource = "tienda"
+            if key == "cloud":
+                LOG.debug(f"Se asigna la category {value}")
+                alert.group = value
+
+            if key == "namespace":
+                LOG.debug(f"Se asigna la App {value}")
+                alert.attributes["Aplicacion"] = value
+
+            if key == "object":
+                LOG.debug(f"Se asigna el objeto {value}")
+                alert.service = value
+
+            if key == "host_name":
+                LOG.debug(f"Se asigna el nodo {value}")
+                alert.resource = value
 
     def pre_receive(self, alert):
+        #Se normalizan las alertas recibidas de tiendas
+        if "source=tienda" in alert.tags:
+            self.normalise_alert_tienda(alert)
 
-        LOG.info('Se asigna procedimiento generico...')
-        if "source" in alert.attributes.keys():
-            if alert.attributes["source"] == "tienda":
-                self.normalise_alert_tienda(alert)
+        #Si la alerta es warning se considera major
+        if alert.severity == "warning":
+            alert.severity = "major"
 
+        #Se evita reprocesar alertas ya procesadas.
         if alert.repeat:
             return alert
 
@@ -40,7 +52,7 @@ class AssignProcedure(PluginBase):
 
         rules_path = plugin_conf["classifyproc"]["rules_file"]
         max_n_matches = 0
-
+        LOG.info('Se asigna procedimiento generico...')
         with open(rules_path, "r") as f:
             for rule in f.readlines():
                 LOG.debug(f"RULE:{rule}")
@@ -67,8 +79,8 @@ class AssignProcedure(PluginBase):
 
                 if rule_app:
                     n_matches = n_matches + 1
-                    if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
-                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
+                    if "Aplicacion" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["Aplicacion"]):
+                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['Aplicacion']}")
                         continue
 
                 if rule_object:
