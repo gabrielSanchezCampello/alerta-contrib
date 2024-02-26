@@ -37,6 +37,7 @@ class Alert2Teams(PluginBase):
 
         # Se crea el titulo
         connector_card.title(title)
+        connector_card.summary(title)
 
         # Se crean las section para el body
         if type(body) == str:
