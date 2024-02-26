@@ -169,7 +169,7 @@ class Alert2Teams(PluginBase):
             LOG.debug("Si que se ha enviado teams.")
             webhook = alert.attributes["TEAMS_WEBHOOK"]
             title = alert.attributes["TEAMS_TITLE"]
-            LOG.debug(f"title {title}, severity {alert.severity}")
-            self.send_message(title, "", alert.severity, webhook)
+            LOG.debug(f"title {title}, severity {status}")
+            self.send_message(title, "", status, webhook)
 
         return alert
