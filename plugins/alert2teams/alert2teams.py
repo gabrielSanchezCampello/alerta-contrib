@@ -156,10 +156,17 @@ class Alert2Teams(PluginBase):
             body = body + f"SEVERIDAD@:@ {alert_severity} \n"
             LOG.info(f"Se manda teams con: webhook: {teams_webhook} || Titulo {teams_tile} || Body: {body} ")
             self.send_message(teams_tile, body, alert_severity, teams_webhook)
-            alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
+            alert.attributes["TEAMS_WEBHOOK"] = f"{teams_webhook}"
+            alert.attributes["TEAMS_TITLE"] = f"{teams_tile}"
+
         else:
             LOG.info("No se envía teams ya que no encaja en ninguna regla.")
         return alert
 
     def status_change(self, alert, status, text):
-        return
+        if "TEAMS" in alert.attributes.keys():
+            webhook = alert.attributes["TEAMS_WEBHOOK"]
+            title = alert.attributes["TEAMS_TITLE"]
+            self.send_message(title, "", status, webhook)
+
+        return alert
