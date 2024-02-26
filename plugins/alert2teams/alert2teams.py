@@ -60,8 +60,8 @@ class Alert2Teams(PluginBase):
     def post_receive(self, alert):
         if alert.repeat:
             return alert
-        LOG.debug(f"Trend Indication: {alert.trendIndication}")
-        if alert.trendIndication and "TEAMS_WEBHOOK" in alert.attributes.keys():
+        LOG.debug(f"Trend Indication: {alert.trend}")
+        if alert.trend and "TEAMS_WEBHOOK" in alert.attributes.keys():
             LOG.debug(f"Ha cambiado la severidad")
             webhook = alert.attributes["TEAMS_WEBHOOK"]
             title = alert.attributes["TEAMS_TITLE"]
