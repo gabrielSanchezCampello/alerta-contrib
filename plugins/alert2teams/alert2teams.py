@@ -58,6 +58,7 @@ class Alert2Teams(PluginBase):
         return alert
 
     def post_receive(self, alert):
+        #Evita notificar alertas duplicadas
         if alert.repeat:
             return alert
 
