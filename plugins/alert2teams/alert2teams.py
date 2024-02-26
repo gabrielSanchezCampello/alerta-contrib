@@ -25,7 +25,8 @@ class Alert2Teams(PluginBase):
                     LOG.debug(f"{key}, {value}")
                     section.addFact(key, value)
                 except Exception:
-                    section.addFact(line)
+                    if line:
+                        section.addFact(line)
         return section
 
     def send_message(self, title, body, severity, webhook):
