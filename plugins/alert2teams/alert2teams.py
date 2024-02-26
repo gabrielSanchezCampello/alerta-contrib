@@ -32,7 +32,8 @@ class Alert2Teams(PluginBase):
     def send_message(self, title, body, severity, webhook):
         TEAMS_DEFAULT_COLORS_MAP = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLORS_MAP"]
         TEAMS_DEFAULT_COLOR = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLOR"]
-        LOG.debug(f"Comienza la construccion del MSG. W={webhook}")
+        LOG.debug(f"Comienza la construccion del MSG.")
+        LOG.debug(f"W={webhook}...")
         connector_card = pymsteams.connectorcard(webhook)
 
         # Se crea el titulo
@@ -142,7 +143,7 @@ class Alert2Teams(PluginBase):
             body = f"RESUMEN@:@ {teams_summary} \n"
             body = body + f"SEVERITY@:@ {teams_severity} \n"
             body = body + f"TYPE@:@ {teams_type} \n"
-            LOG.info(f"Se manda teams con Titulo {teams_tile} || Body: {body} al webhook: {teams_webhook}")
+            LOG.info(f"Se manda teams con: webhook: {teams_webhook} || Titulo {teams_tile} || Body: {body} ")
             self.send_message(teams_tile, body, severity, teams_webhook)
             alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
         else:
