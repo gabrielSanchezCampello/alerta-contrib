@@ -39,7 +39,7 @@ class Alert2Teams(PluginBase):
             color = TEAMS_DEFAULT_COLORS_MAP[severity]
         else:
             color = TEAMS_DEFAULT_COLOR
-
+        LOG.debug(f"Color {color}, severity{severity}")
         connector_card = pymsteams.connectorcard(webhook)
 
         # Se crea el titulo
