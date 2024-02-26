@@ -22,6 +22,7 @@ class Alert2Teams(PluginBase):
                 try:
                     key = line.split("@:@")[0]
                     value = line.split("@:@")[1]
+                    LOG.debug(f"{key}, {value}")
                     section.addFact(key, value)
                 except Exception:
                     section.addFact(line)
@@ -30,7 +31,7 @@ class Alert2Teams(PluginBase):
     def send_message(self, title, body, severity, webhook):
         TEAMS_DEFAULT_COLORS_MAP = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLORS_MAP"]
         TEAMS_DEFAULT_COLOR = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLOR"]
-        LOG.debug(f"Comienza la construccion del MSG")
+        LOG.debug(f"Comienza la construccion del MSG. W={webhook}")
         connector_card = pymsteams.connectorcard(webhook)
 
         # Se crea el titulo
@@ -136,9 +137,9 @@ class Alert2Teams(PluginBase):
 
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
-            body = f"RESUMEN@:@ {teams_summary}"
-            body = body + f"SEVERITY@:@ {teams_severity}"
-            body = body + f"TYPE@:@ {teams_type}"
+            body = f"RESUMEN@:@ {teams_summary} \n"
+            body = body + f"SEVERITY@:@ {teams_severity} \n"
+            body = body + f"TYPE@:@ {teams_type} \n"
             LOG.info(f"Se manda teams con Titulo {teams_tile} || Body: {body} al webhook: {teams_webhook}")
             self.send_message(teams_tile, body, severity, teams_webhook)
             alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
