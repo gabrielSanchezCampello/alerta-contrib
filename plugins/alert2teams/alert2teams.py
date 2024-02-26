@@ -1,10 +1,13 @@
 import logging
 import re
 import pymsteams
-from alerta.plugins import PluginBase
+from alerta.plugins import PluginBase, app
+
+
 
 LOG = logging.getLogger('alerta.plugins.alerta2teams')
 
+plugin_conf = app.config.get('PLUGIN_CONF')
 
 class Alert2Teams(PluginBase):
 
@@ -25,9 +28,8 @@ class Alert2Teams(PluginBase):
         return section
 
     def send_message(self, title, body, severity, webhook):
-        TEAMS_DEFAULT_COLORS_MAP = {'normal': '00AA5A', 'critical': 'D8122A', 'major': 'EA680F', 'minor': 'FFBE1E',
-                                    'warning': '1E90FF'}
-        TEAMS_DEFAULT_COLOR = '000000'
+        TEAMS_DEFAULT_COLORS_MAP = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLORS_MAP"]
+        TEAMS_DEFAULT_COLOR = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLOR"]
         LOG.debug(f"Comienza la construccion del MSG")
         connector_card = pymsteams.connectorcard(webhook)
 
@@ -59,7 +61,7 @@ class Alert2Teams(PluginBase):
     def post_receive(self, alert):
         LOG.info('Se busca la regla a aplicar...')
 
-        rules_path = "/app/proc_rules_teams.txt"
+        rules_path = plugin_conf["alert2teams"]["rules_file"]
         max_n_matches = 0
 
         with open(rules_path, "r") as f:
