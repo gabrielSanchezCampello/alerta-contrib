@@ -134,7 +134,7 @@ class Alert2Teams(PluginBase):
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
                     teams_type = data_rule[9]
-                    teams_webhook = data_rule[10]
+                    teams_webhook = data_rule[10].rstrip()
                     teams_severity = severity
                     rule_aplied = rule
 
