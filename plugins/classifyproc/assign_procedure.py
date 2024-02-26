@@ -11,14 +11,18 @@ class AssignProcedure(PluginBase):
 
     def normalise_alert_tienda(self, alert):
         if "cloud" in alert.attributes.keys():
+            LOG.debug(f"Se asigna la category {alert.attributes['cloud']}")
             alert.category = alert.attributes["cloud"]
 
         if "namespace" in alert.attributes.keys():
+            LOG.debug(f"Se asigna la App {alert.attributes['namespace']}")
             alert.attributes["App"] = alert.attributes["namespace"]
 
         if "job" in alert.attributes.keys():
+            LOG.debug(f"Se asigna el objeto {alert.attributes['job']}")
             alert.service = alert.attributes["job"]
 
+        LOG.debug(f"Se asigna el nodo tienda")
         alert.resource = "tienda"
 
     def pre_receive(self, alert):
