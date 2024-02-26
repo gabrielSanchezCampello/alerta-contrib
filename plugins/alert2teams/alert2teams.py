@@ -20,9 +20,9 @@ class Alert2Teams(PluginBase):
         if lines:
             for line in lines:
                 try:
-                    key = line.split("@:@")[0]
+                    key = line.split("@:@")[0] + ":"
                     value = line.split("@:@")[1]
-                    LOG.debug(f"{key}, {value}")
+                    LOG.debug(f"{key} {value}")
                     section.addFact(key, value)
                 except Exception:
                     if line:
