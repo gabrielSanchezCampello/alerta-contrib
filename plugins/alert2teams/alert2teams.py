@@ -11,10 +11,10 @@ plugin_conf = app.config.get('PLUGIN_CONF')
 
 class Alert2Teams(PluginBase):
 
-    def build_section(self, body):
+    def build_section(self, body, color):
+
         section = pymsteams.cardsection()
-        section.title("")
-        section.activitySubtitle("")
+        section.title(f"<hr style='border-color: #{color}; border-width: 5px;'>")
 
         lines = body.split("\n")
         if lines:
@@ -26,14 +26,20 @@ class Alert2Teams(PluginBase):
                     section.addFact(key, value)
                 except Exception:
                     if line:
-                        section.addFact(line)
+                        section.text(line)
         return section
 
     def send_message(self, title, body, severity, webhook):
+        LOG.debug(f"Comienza la construccion del MSG.")
+
         TEAMS_DEFAULT_COLORS_MAP = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLORS_MAP"]
         TEAMS_DEFAULT_COLOR = plugin_conf["alert2teams"]["TEAMS_DEFAULT_COLOR"]
-        LOG.debug(f"Comienza la construccion del MSG.")
-        LOG.debug(f"W={webhook}...")
+
+        if severity in TEAMS_DEFAULT_COLORS_MAP.keys():
+            color = TEAMS_DEFAULT_COLORS_MAP[severity]
+        else:
+            color = TEAMS_DEFAULT_COLOR
+
         connector_card = pymsteams.connectorcard(webhook)
 
         # Se crea el titulo
@@ -42,19 +48,8 @@ class Alert2Teams(PluginBase):
 
         # Se crean las section para el body
         if type(body) == str:
-            section = self.build_section(body)
+            section = self.build_section(body, color)
             connector_card.addSection(section)
-
-        if type(body) == list:
-            for line in body:
-                section = self.build_section(line)
-                connector_card.addSection(section)
-
-        if severity in TEAMS_DEFAULT_COLORS_MAP.keys():
-            color = TEAMS_DEFAULT_COLORS_MAP[severity]
-        else:
-            color = TEAMS_DEFAULT_COLOR
-        connector_card.color(color)
 
         connector_card.send()
 
@@ -133,7 +128,6 @@ class Alert2Teams(PluginBase):
                     # Values of teams
                     teams_tile = data_rule[7]
                     teams_summary = data_rule[8]
-                    teams_type = data_rule[9]
                     teams_webhook = data_rule[10].rstrip()
                     teams_severity = severity
                     rule_aplied = rule
@@ -141,8 +135,10 @@ class Alert2Teams(PluginBase):
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
             body = f"RESUMEN@:@ {teams_summary} \n"
-            body = body + f"SEVERITY@:@ {teams_severity} \n"
-            body = body + f"TYPE@:@ {teams_type} \n"
+            body = body + f"CATEGORIA@:@ {category} \n"
+            body = body + f"APP@:@ {app} \n"
+            body = body + f"OBJETO@:@ {object_alert} \n"
+            body = body + f"SEVERIDAD@:@ {teams_severity} \n"
             LOG.info(f"Se manda teams con: webhook: {teams_webhook} || Titulo {teams_tile} || Body: {body} ")
             self.send_message(teams_tile, body, severity, teams_webhook)
             alert.attributes["TEAMS"] = f"ENVIADO - {teams_webhook}"
