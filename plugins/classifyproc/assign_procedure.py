@@ -22,6 +22,14 @@ class AssignProcedure(PluginBase):
                 LOG.debug(f"Se asigna la category {value}")
                 alert.group = value
 
+            if key == "environment":
+                value = value.upper()
+                if value.startswith("OCP-"):
+                    value = value.split("-")[1]
+                alert.environment = value
+
+            if key == "type":
+                alert.attributes["TIPO ALERTA"] = value
             if key == "namespace":
                 LOG.debug(f"Se asigna la App {value}")
                 alert.attributes["Aplicacion"] = value
