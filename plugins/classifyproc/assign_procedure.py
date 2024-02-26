@@ -9,9 +9,25 @@ plugin_conf = app.config.get('PLUGIN_CONF')
 
 class AssignProcedure(PluginBase):
 
+    def normalise_alert_tienda(self, alert):
+        if "cloud" in alert.attributes.keys():
+            alert.category = alert.attributes["cloud"]
+
+        if "namespace" in alert.attributes.keys():
+            alert.attributes["App"] = alert.attributes["namespace"]
+
+        if "job" in alert.attributes.keys():
+            alert.service = alert.attributes["job"]
+
+        alert.resource = "tienda"
+
     def pre_receive(self, alert):
 
         LOG.info('Se asigna procedimiento generico...')
+        if "source" in alert.tags.keys():
+            if alert.tags["source"] == "tienda":
+                self.normalise_alert_tienda(alert)
+
         alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
         alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
@@ -25,58 +41,61 @@ class AssignProcedure(PluginBase):
                 if len(data_rule) != 8:
                     LOG.warning("Regla incompleta")
                     continue
-                category = data_rule[0]
-                app = data_rule[1]
-                object_alert = data_rule[2]
-                node = data_rule[3]
-                ip = data_rule[4]
-                title = data_rule[5]
-                manager = data_rule[6]
-                instruction = data_rule[7]
+                rule_category = data_rule[0]
+                rule_app = data_rule[1]
+                rule_object = data_rule[2]
+                rule_node = data_rule[3]
+                rule_ip = data_rule[4]
+                rule_title = data_rule[5]
+                rule_manager = data_rule[6]
+                rule_instruction = data_rule[7]
 
                 n_matches = 0
 
-                if category:
+                if rule_category:
                     n_matches = n_matches + 1
-                    if not re.search(category, alert.group):
-                        LOG.debug(f"Falla en category. {category} == {alert.group}")
+                    if not re.search(rule_category, alert.group):
+                        LOG.debug(f"Falla en category. {rule_category} == {alert.group}")
                         continue
 
-                if app:
+                if rule_app:
                     n_matches = n_matches + 1
-                    if "App" in alert.attributes.keys() and not re.search(app, alert.attributes["App"]):
-                        LOG.debug(f"Falla en app. {app} == {alert.attributes['App']}")
+                    if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
+                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
                         continue
 
-                if object_alert:
+                if rule_object:
                     n_matches = n_matches + 1
-                    if not re.search(object_alert, alert.service):
-                        LOG.debug(f"Falla en object. {object_alert} == {alert.service}")
+                    if not re.search(rule_object, alert.service):
+                        LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
                         continue
 
-                if node:
+                if rule_node:
                     n_matches = n_matches + 1
-                    if not re.search(node, alert.resource):
-                        LOG.debug(f"Falla en node. {node} == {alert.resource}")
+                    if not re.search(rule_node, alert.resource):
+                        LOG.debug(f"Falla en node. {rule_node} == {alert.resource}")
                         continue
 
-                if ip:
+                if rule_ip:
                     n_matches = n_matches + 1
-                    if "IP" in alert.attributes.keys() and not re.search(ip, alert.attributes["IP"]):
-                        LOG.debug(f"Falla en IP. {ip} == {alert.attributes['IP'] }")
+                    if "IP" in alert.attributes.keys() and not re.search(rule_ip, alert.attributes["IP"]):
+                        LOG.debug(f"Falla en IP. {rule_ip} == {alert.attributes['IP'] }")
                         continue
 
-                if title:
+                if rule_title:
                     n_matches = n_matches + 1
-                    if not re.search(title, alert.event):
-                        LOG.debug(f"Falla en title. {title} == {alert.event}")
+                    if not re.search(rule_title, alert.event):
+                        LOG.debug(f"Falla en title. {rule_title} == {alert.event}")
                         continue
 
                 if n_matches > max_n_matches:
-                    alert.attributes["Procedimiento"] = instruction
-                    alert.attributes["Responsable"] = manager
+                    alert.attributes["Procedimiento"] = rule_instruction
+                    alert.attributes["Responsable"] = rule_manager
                     max_n_matches = n_matches
                     rule_aplied = rule
+
+                if n_matches == max_n_matches:
+                    LOG.warning(f"Existen dos reglas que aplican a la misma alerta. Rule1: {rule}, Rule:{rule_aplied}")
 
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
