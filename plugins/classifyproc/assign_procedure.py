@@ -29,7 +29,7 @@ class AssignProcedure(PluginBase):
                 alert.environment = value
 
             if key == "type":
-                alert.attributes["TIPO ALERTA"] = value
+                alert.attributes["TipoAlerta"] = value
             if key == "namespace":
                 LOG.debug(f"Se asigna la App {value}")
                 alert.attributes["Aplicacion"] = value
