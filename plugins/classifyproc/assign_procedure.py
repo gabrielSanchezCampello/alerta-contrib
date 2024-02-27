@@ -139,15 +139,13 @@ class AssignProcedure(PluginBase):
         return alert
 
     def post_receive(self, alert):
-
-        return alert
-
-    def status_change(self, alert, status, text):
         # Si la alerta es MANUAL no la cerramos via input
-        LOG.debug(f"Info status: {status}, {text}")
-        if status == "closed" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
+        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
             LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. {alert.severity}, {alert.previous_severity}")
             alert.status = "open"
             alert.severity = alert.previous_severity
             return alert
+        return alert
+
+    def status_change(self, alert, status, text):
         return
