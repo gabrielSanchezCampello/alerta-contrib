@@ -27,7 +27,7 @@ class AssignProcedure(PluginBase):
                 alert.attributes["TipoAlerta"] = value
 
             if "message" in alert.attributes.keys():
-                LOG.debug(f"Se asigna el titulo (event) {alert.attributes["message"] }")
+                LOG.debug(f"Se asigna el titulo (event) {alert.attributes['message'] }")
                 alert.event = alert.attributes["message"]
 
             if key == "namespace":
