@@ -59,10 +59,14 @@ class AssignProcedure(PluginBase):
         #Si la alerta es principal se considera warning
         elif alert.severity == "principal":
             alert.severity = "warning"
+        elif alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
+            alert.severity = alert.previous_alert
+            return alert
 
         #Se evita reprocesar alertas ya procesadas.
         if alert.repeat:
             return alert
+
         alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
         alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
