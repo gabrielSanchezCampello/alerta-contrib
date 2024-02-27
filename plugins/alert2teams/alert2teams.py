@@ -54,15 +54,18 @@ class Alert2Teams(PluginBase):
         connector_card.send()
 
     def pre_receive(self, alert):
-
         return alert
 
     def post_receive(self, alert):
+        # A teams solo se envían las minor
+        if alert.severity != "minor" or alert.severity != "normal":
+            return alert
+
         #Evita notificar alertas duplicadas
         if alert.repeat:
             return alert
 
-        #INFO ALERTA
+        #Se obtiene la información de la ALERTA
         alert_node = alert.resource
         alert_category = alert.group
         alert_severity = alert.severity
@@ -73,8 +76,8 @@ class Alert2Teams(PluginBase):
         alert_object = alert.service
 
         #Notificacion en caso de cambio de severidad
-        if alert.trend_indication and alert.trend_indication != "noChange" and "TEAMS_WEBHOOK" in alert.attributes.keys():
-            LOG.debug(f"Ha cambiado la severidad")
+        if alert.severity == "normal" and "TEAMS_WEBHOOK" in alert.attributes.keys():
+            LOG.debug(f"Se avisa del fin de la alerta.")
             webhook = alert.attributes["TEAMS_WEBHOOK"]
             title = alert.attributes["TEAMS_TITLE"]
             body = f"CATEGORIA@:@ {alert_category} \n"
@@ -97,7 +100,6 @@ class Alert2Teams(PluginBase):
                 data_rule = rule.split(";")
                 if len(data_rule) != 10:
                     LOG.warning("Regla incompleta")
-
                     continue
 
                 # Values of rule
@@ -164,8 +166,7 @@ class Alert2Teams(PluginBase):
                     max_n_matches = n_matches
                     # Values to teams
                     teams_tile = data_rule[7]
-                    teams_summary = data_rule[8]
-                    teams_webhook = data_rule[9].rstrip()
+                    teams_webhook = data_rule[8].rstrip()
                     rule_aplied = rule
 
         if max_n_matches != 0:
@@ -186,12 +187,4 @@ class Alert2Teams(PluginBase):
         return alert
 
     def status_change(self, alert, status, text):
-        # LOG.debug(f"Ha cambiado el estado de la alerta {status}, {text}")
-        # if "TEAMS_WEBHOOK" in alert.attributes.keys():
-        #     LOG.debug("Si que se ha enviado teams.")
-        #     webhook = alert.attributes["TEAMS_WEBHOOK"]
-        #     title = alert.attributes["TEAMS_TITLE"]
-        #     LOG.debug(f"title {title}, severity {status}")
-        #     self.send_message(title, "", status, webhook)
-
         return alert
