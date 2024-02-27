@@ -60,12 +60,6 @@ class AssignProcedure(PluginBase):
         if alert.severity == "principal":
             alert.severity = "major"
 
-        # Si la alerta es MANUAL no la cerramos via input
-        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
-            LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. {alert.severity}, {alert.previous_severity}")
-            alert.severity = alert.previous_severity
-            return alert
-
         #Se evita reprocesar alertas ya procesadas.
         if alert.repeat:
             return alert
@@ -145,6 +139,11 @@ class AssignProcedure(PluginBase):
         return alert
 
     def post_receive(self, alert):
+        # Si la alerta es MANUAL no la cerramos via input
+        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
+            LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. {alert.severity}, {alert.previous_severity}")
+            alert.severity = alert.previous_severity
+            return alert
         return
 
     def status_change(self, alert, status, text):
