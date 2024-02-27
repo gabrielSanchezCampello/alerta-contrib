@@ -57,7 +57,6 @@ class AssignProcedure(PluginBase):
         #Se evita reprocesar alertas ya procesadas.
         if alert.repeat:
             return alert
-        try:
             alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
             alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
@@ -96,9 +95,14 @@ class AssignProcedure(PluginBase):
 
                     if rule_object:
                         n_matches = n_matches + 1
-                        if not re.search(rule_object, alert.service):
-                            LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
-                            continue
+
+                        try:
+                            if not re.search(rule_object, alert.service):
+                                LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
+                                continue
+                        except Exception as e:
+                            LOG.error(f"Falla al comparar los object. {rule_object} == {alert.service}")
+                            n_matches = n_matches -1
 
                     if rule_node:
                         n_matches = n_matches + 1
@@ -129,10 +133,6 @@ class AssignProcedure(PluginBase):
 
             if max_n_matches != 0:
                 LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
-        except Exception as e:
-            LOG.exception(f"Asociando proc/responsable a alerta. Error:{e}")
-            alert.attributes["Procedimiento"] = "ERROR ASIGNANDO PROC"
-            alert.attributes["Responsable"] = "ERROR ASIGNANDO RESPONSABLE"
 
         return alert
 
