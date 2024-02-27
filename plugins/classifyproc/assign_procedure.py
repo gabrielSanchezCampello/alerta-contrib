@@ -141,7 +141,7 @@ class AssignProcedure(PluginBase):
     def post_receive(self, alert):
         # Si la alerta es MANUAL no la cerramos via input
         if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
-            LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. {alert.severity}, {alert.previous_severity}")
+            LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. Actual: {alert.severity}, Anterior: {alert.previous_severity} || {alert.status}")
             alert.status = "open"
             alert.severity = alert.previous_severity
             return alert
