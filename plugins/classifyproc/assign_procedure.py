@@ -10,6 +10,7 @@ plugin_conf = app.config.get('PLUGIN_CONF')
 class AssignProcedure(PluginBase):
 
     def normalise_alert_tienda(self, alert):
+        LOG.debug(f"Se modifica el environment {alert.service}")
 
         for info in alert.tags:
 
@@ -22,7 +23,7 @@ class AssignProcedure(PluginBase):
 
             if key == "cloud" and value:
                 LOG.debug(f"Se asigna el service {value}")
-                alert.service = value
+                alert.service = [value]
 
             if key == "type":
                 LOG.debug(f"Se asigna el tipo de alerta {value}")
@@ -39,7 +40,6 @@ class AssignProcedure(PluginBase):
             if key == "host_name" and value:
                 LOG.debug(f"Se asigna el nodo {value}")
                 alert.resource = value
-        LOG.debug(f"Se modifica el environment {alert.service}")
 
         LOG.debug(f"Se modifica el environment {alert.environment}")
         value = alert.environment.upper()
