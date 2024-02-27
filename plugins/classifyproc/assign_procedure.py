@@ -19,8 +19,8 @@ class AssignProcedure(PluginBase):
             value = info.split("=")[1]
 
             if key == "cloud" and value:
-                LOG.debug(f"Se asigna la categoria(group) {value}")
-                alert.group = value
+                LOG.debug(f"Se asigna el service {value}")
+                alert.service = value
 
             if key == "type":
                 LOG.debug(f"Se asigna el tipo de alerta {value}")
@@ -34,14 +34,9 @@ class AssignProcedure(PluginBase):
                 LOG.debug(f"Se asigna la App {value}")
                 alert.attributes["App"] = value
 
-            if key == "job":
-                LOG.debug(f"Se asigna el objeto {value}")
-                alert.service = value
-
             if key == "host_name" and value:
                 LOG.debug(f"Se asigna el nodo {value}")
                 alert.resource = value
-
 
         LOG.debug(f"Se modifica el environment {alert.environment}")
         value = alert.environment.upper()
@@ -62,78 +57,82 @@ class AssignProcedure(PluginBase):
         #Se evita reprocesar alertas ya procesadas.
         if alert.repeat:
             return alert
+        try:
+            alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
+            alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
-        alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
-        alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
-
-        rules_path = plugin_conf["classifyproc"]["rules_file"]
-        max_n_matches = 0
-        LOG.info('Se asigna procedimiento generico...')
-        with open(rules_path, "r") as f:
-            for rule in f.readlines():
-                LOG.debug(f"RULE:{rule}")
-                data_rule = rule.split(";")
-                if len(data_rule) != 8:
-                    LOG.warning("Regla incompleta")
-                    continue
-                rule_category = data_rule[0]
-                rule_app = data_rule[1]
-                rule_object = data_rule[2]
-                rule_node = data_rule[3]
-                rule_ip = data_rule[4]
-                rule_title = data_rule[5]
-                rule_manager = data_rule[6]
-                rule_instruction = data_rule[7]
-
-                n_matches = 0
-
-                if rule_category:
-                    n_matches = n_matches + 1
-                    if not re.search(rule_category, alert.group):
-                        LOG.debug(f"Falla en category. {rule_category} == {alert.group}")
+            rules_path = plugin_conf["classifyproc"]["rules_file"]
+            max_n_matches = 0
+            LOG.info('Se asigna procedimiento generico...')
+            with open(rules_path, "r") as f:
+                for rule in f.readlines():
+                    LOG.debug(f"RULE:{rule}")
+                    data_rule = rule.split(";")
+                    if len(data_rule) != 8:
+                        LOG.warning("Regla incompleta")
                         continue
+                    rule_category = data_rule[0]
+                    rule_app = data_rule[1]
+                    rule_object = data_rule[2]
+                    rule_node = data_rule[3]
+                    rule_ip = data_rule[4]
+                    rule_title = data_rule[5]
+                    rule_manager = data_rule[6]
+                    rule_instruction = data_rule[7]
 
-                if rule_app:
-                    n_matches = n_matches + 1
-                    if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
-                        LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
-                        continue
+                    n_matches = 0
 
-                if rule_object:
-                    n_matches = n_matches + 1
-                    if not re.search(rule_object, alert.service):
-                        LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
-                        continue
+                    if rule_category:
+                        n_matches = n_matches + 1
+                        if not re.search(rule_category, alert.group):
+                            LOG.debug(f"Falla en category. {rule_category} == {alert.group}")
+                            continue
 
-                if rule_node:
-                    n_matches = n_matches + 1
-                    if not re.search(rule_node, alert.resource):
-                        LOG.debug(f"Falla en node. {rule_node} == {alert.resource}")
-                        continue
+                    if rule_app:
+                        n_matches = n_matches + 1
+                        if "App" in alert.attributes.keys() and not re.search(rule_app, alert.attributes["App"]):
+                            LOG.debug(f"Falla en app. {rule_app} == {alert.attributes['App']}")
+                            continue
 
-                if rule_ip:
-                    n_matches = n_matches + 1
-                    if "IP" in alert.attributes.keys() and not re.search(rule_ip, alert.attributes["IP"]):
-                        LOG.debug(f"Falla en IP. {rule_ip} == {alert.attributes['IP'] }")
-                        continue
+                    if rule_object:
+                        n_matches = n_matches + 1
+                        if not re.search(rule_object, alert.service):
+                            LOG.debug(f"Falla en object. {rule_object} == {alert.service}")
+                            continue
 
-                if rule_title:
-                    n_matches = n_matches + 1
-                    if not re.search(rule_title, alert.event):
-                        LOG.debug(f"Falla en title. {rule_title} == {alert.event}")
-                        continue
+                    if rule_node:
+                        n_matches = n_matches + 1
+                        if not re.search(rule_node, alert.resource):
+                            LOG.debug(f"Falla en node. {rule_node} == {alert.resource}")
+                            continue
 
-                if n_matches > max_n_matches:
-                    alert.attributes["Procedimiento"] = rule_instruction
-                    alert.attributes["Responsable"] = rule_manager
-                    max_n_matches = n_matches
-                    rule_aplied = rule
+                    if rule_ip:
+                        n_matches = n_matches + 1
+                        if "IP" in alert.attributes.keys() and not re.search(rule_ip, alert.attributes["IP"]):
+                            LOG.debug(f"Falla en IP. {rule_ip} == {alert.attributes['IP'] }")
+                            continue
 
-                if n_matches == max_n_matches:
-                    LOG.warning(f"Existen dos reglas que aplican a la misma alerta. Rule1: {rule}, Rule:{rule_aplied}")
+                    if rule_title:
+                        n_matches = n_matches + 1
+                        if not re.search(rule_title, alert.event):
+                            LOG.debug(f"Falla en title. {rule_title} == {alert.event}")
+                            continue
 
-        if max_n_matches != 0:
-            LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
+                    if n_matches > max_n_matches:
+                        alert.attributes["Procedimiento"] = rule_instruction
+                        alert.attributes["Responsable"] = rule_manager
+                        max_n_matches = n_matches
+                        rule_aplied = rule
+
+                    if n_matches == max_n_matches:
+                        LOG.warning(f"Existen dos reglas que aplican a la misma alerta. Rule1: {rule}, Rule:{rule_aplied}")
+
+            if max_n_matches != 0:
+                LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
+        except Exception as e:
+            LOG.exception(f"Asociando proc/responsable a alerta. Error:{e}")
+            alert.attributes["Procedimiento"] = "ERROR ASIGNANDO PROC"
+            alert.attributes["Responsable"] = "ERROR ASIGNANDO RESPONSABLE"
 
         return alert
 

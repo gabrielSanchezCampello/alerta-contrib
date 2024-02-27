@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-version = '5.3.1'
+version = '1.1.1'
 
 setup(
     name='assign_procedure',
