@@ -62,6 +62,7 @@ class AssignProcedure(PluginBase):
 
         # Si la alerta es MANUAL no la cerramos via input
         if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
+            LOG.debug(f"Se intenta cerrar una alerta 'MANUAL'. {alert.severity}, {alert.previous_severity}")
             alert.severity = alert.previous_severity
             return alert
 
