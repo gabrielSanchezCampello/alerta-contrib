@@ -19,14 +19,8 @@ class AssignProcedure(PluginBase):
             value = info.split("=")[1]
 
             if key == "cloud" and value:
-                LOG.debug(f"Se asigna la category {value}")
+                LOG.debug(f"Se asigna la categoria(group) {value}")
                 alert.group = value
-
-            if key == "environment":
-                value = value.upper()
-                if value.startswith("OCP-"):
-                    value = value.split("-")[1]
-                alert.environment = value
 
             if key == "type":
                 alert.attributes["TipoAlerta"] = value
@@ -35,13 +29,22 @@ class AssignProcedure(PluginBase):
                 LOG.debug(f"Se asigna la App {value}")
                 alert.attributes["App"] = value
 
-            if key == "object":
+            if key == "job":
                 LOG.debug(f"Se asigna el objeto {value}")
                 alert.service = value
 
             if key == "host_name" and value:
                 LOG.debug(f"Se asigna el nodo {value}")
                 alert.resource = value
+
+        LOG.debug(f"Se asigna el event(title) {alert.message}")
+        alert.event = alert.message
+
+        LOG.debug(f"Se modifica el environment {alert.environment}")
+        value = alert.environment.upper()
+        if value.startswith("OCP-"):
+            value = value.split("-")[1]
+        alert.environment = value
 
     def pre_receive(self, alert):
         #Se normalizan las alertas recibidas de tiendas
