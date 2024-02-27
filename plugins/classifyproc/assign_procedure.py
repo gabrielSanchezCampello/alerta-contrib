@@ -57,10 +57,12 @@ class AssignProcedure(PluginBase):
         if alert.severity == "warning":
             alert.severity = "minor"
         #Si la alerta es principal se considera warning
-        elif alert.severity == "principal":
-            alert.severity = "warning"
-        elif alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
-            alert.severity = alert.previous_alert
+        if alert.severity == "principal":
+            alert.severity = "major"
+
+        # Si la alerta es MANUAL no la cerramos via input
+        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
+            alert.severity = alert.previous_severity
             return alert
 
         #Se evita reprocesar alertas ya procesadas.
