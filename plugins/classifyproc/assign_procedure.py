@@ -20,7 +20,7 @@ class AssignProcedure(PluginBase):
 
             if key == "cloud" and value:
                 LOG.debug(f"Se añade el nuevo service {value} a {alert.service}")
-                if not alert.service:
+                if alert.service[0] == "":
                     alert.service = [value]
                 else:
                     services = alert.service
