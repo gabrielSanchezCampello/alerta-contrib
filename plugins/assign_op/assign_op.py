@@ -14,11 +14,12 @@ class AssignOperator(PluginBase):
 
     def post_receive(self, alert):
         LOG.debug("Estamos en el post receive")
-        LOG.debug(alert.actions)
+        LOG.debug(alert.history)
         return alert
 
     def status_change(self, alert, status, text):
         LOG.debug("Estamos en el status change")
         LOG.debug(f"Status: {status}, text: {text}")
-        LOG.debug(alert.actions)
+        LOG.debug(alert.history)
+
         return alert
