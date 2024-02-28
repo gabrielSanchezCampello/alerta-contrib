@@ -1,15 +1,17 @@
-import logging, re
-from alerta.plugins import PluginBase, app
+import logging
+import re
+
 from alerta.exceptions import RejectException
+from alerta.plugins import PluginBase, app
 
 LOG = logging.getLogger('alerta.plugins.assign_proc')
 
 plugin_conf = app.config.get('PLUGIN_CONF')
 
-class AssignProcedure(PluginBase):
+
+class ProcessAlert(PluginBase):
 
     def normalise_alert_tienda(self, alert):
-
         for info in alert.tags:
 
             if "=" not in info:
@@ -40,8 +42,8 @@ class AssignProcedure(PluginBase):
                 alert.resource = value
 
         if "Message" in alert.attributes.keys():
-            LOG.debug(f"Se asigna el titulo (event) {alert.attributes['message']}")
-            alert.event = alert.attributes["message"]
+            LOG.debug(f"Se asigna el titulo (event) {alert.attributes['Message']}")
+            alert.event = alert.attributes["Message"]
 
         LOG.debug(f"Se modifica el environment {alert.environment}")
         value = alert.environment.upper()
@@ -49,26 +51,16 @@ class AssignProcedure(PluginBase):
             value = value.split("-")[1]
         alert.environment = value
 
-    def pre_receive(self, alert):
-        #Se normalizan las alertas recibidas de tiendas
-        if "source=tienda" in alert.tags:
-            LOG.debug("Se normalizan los datos recibidos de tiendas.")
-            self.normalise_alert_tienda(alert)
-
-        #Si la alerta es warning se considera minor
+    def normalise_severity(self, alert):
+        # Si la alerta es warning se considera minor
         if alert.severity == "warning":
             alert.severity = "minor"
-        #Si la alerta es principal se considera warning
+
+        # Si la alerta es principal se considera warning
         if alert.severity == "principal":
             alert.severity = "major"
 
-        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes["TipoAlerta"] == "MANUAL":
-            raise RejectException(f"No se puede desescalar automaticamente una alerta MANUAL")
-
-        #Se evita reprocesar alertas ya procesadas.
-        if alert.repeat:
-            return alert
-
+    def assign_proc(self, alert):
         alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
         alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
 
@@ -120,7 +112,7 @@ class AssignProcedure(PluginBase):
                 if rule_ip:
                     n_matches = n_matches + 1
                     if "IP" in alert.attributes.keys() and not re.search(rule_ip, alert.attributes["IP"]):
-                        LOG.debug(f"No se aplica por la IP. {rule_ip} == {alert.attributes['IP'] }")
+                        LOG.debug(f"No se aplica por la IP. {rule_ip} == {alert.attributes['IP']}")
                         continue
 
                 if rule_title:
@@ -140,6 +132,23 @@ class AssignProcedure(PluginBase):
 
         if max_n_matches != 0:
             LOG.info(f"Se aplica la regla: {rule_aplied} || n_matches={max_n_matches}")
+
+    def pre_receive(self, alert):
+        # Se normalizan las alertas recibidas de tiendas
+        if "source=tienda" in alert.tags:
+            LOG.debug("Se normalizan los datos recibidos de tiendas.")
+            self.normalise_alert_tienda(alert)
+
+        # Se normaliza la severidad
+        self.normalise_severity(alert)
+
+        # Se descarta la severity normal para alarmas MANUAL
+        if alert.severity == "normal" and "TipoAlerta" in alert.attributes.keys() and alert.attributes[
+            "TipoAlerta"] == "MANUAL":
+            raise RejectException(f"No se puede desescalar automaticamente una alerta MANUAL")
+
+        if alert.severity == "critical" or alert.severity == "major":
+            self.assign_proc(alert)
 
         return alert
 

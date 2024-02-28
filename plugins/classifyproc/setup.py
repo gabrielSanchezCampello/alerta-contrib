@@ -1,9 +1,9 @@
 from setuptools import find_packages, setup
 
-version = '1.2.0'
+version = '2.1.0'
 
 setup(
-    name='assign_procedure',
+    name='process_alert',
     version=version,
     description='Alerta plugin for assign procedures to alerts',
     url='https://github.com/gabrielSanchezCampello/alerta-contrib',
@@ -11,12 +11,12 @@ setup(
     author='Gabriel Sanchez',
     author_email='gabriel.sanchez.campello@gmail.com',
     packages=find_packages(),
-    py_modules=['assign_procedure'],
+    py_modules=['process_alert'],
     include_package_data=True,
     zip_safe=True,
     entry_points={
         'alerta.plugins': [
-            'classifyproc = assign_procedure:AssignProcedure'
+            'process_alert = process_alert:ProcessAlert'
         ]
     }
 )
