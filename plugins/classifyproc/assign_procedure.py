@@ -31,10 +31,6 @@ class AssignProcedure(PluginBase):
                 LOG.debug(f"Se asigna el tipo de alerta {value}")
                 alert.attributes["TipoAlerta"] = value
 
-            if "message" in alert.attributes.keys():
-                LOG.debug(f"Se asigna el titulo (event) {alert.attributes['message'] }")
-                alert.event = alert.attributes["message"]
-
             if key == "namespace":
                 LOG.debug(f"Se asigna la App {value}")
                 alert.attributes["App"] = value
@@ -42,6 +38,10 @@ class AssignProcedure(PluginBase):
             if key == "host_name" and value:
                 LOG.debug(f"Se asigna el nodo {value}")
                 alert.resource = value
+
+        if "Message" in alert.attributes.keys():
+            LOG.debug(f"Se asigna el titulo (event) {alert.attributes['message']}")
+            alert.event = alert.attributes["message"]
 
         LOG.debug(f"Se modifica el environment {alert.environment}")
         value = alert.environment.upper()
