@@ -38,7 +38,7 @@ server configuration file or as environment variables.
 **Example**
 
 ```python
-PLUGINS = ['reject','classifyproc']
+PLUGINS = ['reject','process_alert']
 ```
 
 Troubleshooting
