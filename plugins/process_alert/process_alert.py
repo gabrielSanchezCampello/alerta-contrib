@@ -4,7 +4,7 @@ import re
 from alerta.exceptions import RejectException
 from alerta.plugins import PluginBase, app
 
-LOG = logging.getLogger('alerta.plugins.assign_proc')
+LOG = logging.getLogger('alerta.plugins.process_alert')
 
 plugin_conf = app.config.get('PLUGIN_CONF')
 
@@ -61,10 +61,10 @@ class ProcessAlert(PluginBase):
             alert.severity = "major"
 
     def assign_proc(self, alert):
-        alert.attributes["Procedimiento"] = plugin_conf["classifyproc"]["generic_proc"]["proc"]
-        alert.attributes["Responsable"] = plugin_conf["classifyproc"]["generic_proc"]["responsible"]
+        alert.attributes["Procedimiento"] = plugin_conf["process_alert"]["generic_proc"]["proc"]
+        alert.attributes["Responsable"] = plugin_conf["process_alert"]["generic_proc"]["responsible"]
 
-        rules_path = plugin_conf["classifyproc"]["rules_file"]
+        rules_path = plugin_conf["process_alert"]["rules_file"]
         max_n_matches = 0
         LOG.info('Se asigna procedimiento generico...')
         with open(rules_path, "r") as f:
