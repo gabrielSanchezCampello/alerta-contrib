@@ -10,15 +10,15 @@ plugin_conf = app.config.get('PLUGIN_CONF')
 class AssignOperator(PluginBase):
 
     def pre_receive(self, alert):
-        return
+        return alert
 
     def post_receive(self, alert):
         LOG.debug("Estamos en el post receive")
         LOG.debug(alert.actions)
-        return
+        return alert
 
     def status_change(self, alert, status, text):
         LOG.debug("Estamos en el status change")
         LOG.debug(f"Status: {status}, text: {text}")
         LOG.debug(alert.actions)
-        return
+        return alert
